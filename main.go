@@ -28,6 +28,11 @@ func Time2Range(start, end time.Time) (snapshotTimeRange /*快照区间*/, nonSn
 	// 结束日期所在的终点
 	end235959 := time.Date(end.Year(), end.Month(), end.Day(),
 		23, 59, 59, 0, time.Local)
+	canSnapshot := func() bool {
+		return start.Year()+1 < end.Year() /*跨年*/ ||
+			(start000000.AddDate(0, 0, 1).Year() <= end000000.Year() &&
+				start000000.AddDate(0, 0, 1).YearDay() < end000000.YearDay()) /*超过一天*/
+	}
 	if start == start000000 {
 		// 开始日期对齐
 		if end == end235959 {
@@ -35,9 +40,7 @@ func Time2Range(start, end time.Time) (snapshotTimeRange /*快照区间*/, nonSn
 			snapshotTimeRange = append(snapshotTimeRange, start, end)
 		} else if end.Before(end235959) {
 			// 结束日期未对齐
-			if start.Year()+1 < end.Year() /*跨年*/ ||
-				(start000000.AddDate(0, 0, 1).Year() <= end000000.Year() &&
-					start000000.AddDate(0, 0, 1).YearDay() < end000000.YearDay()) /*超过一天*/ {
+			if canSnapshot() {
 				// 有快照可用
 				snapshotTimeRange = append(snapshotTimeRange, start,
 					end235959.AddDate(0, 0, -1))
@@ -49,9 +52,7 @@ func Time2Range(start, end time.Time) (snapshotTimeRange /*快照区间*/, nonSn
 		// 开始日期未对齐
 		if end == end235959 {
 			// 结束日期对齐
-			if start.Year()+1 < end.Year() /*跨年*/ ||
-				(start000000.AddDate(0, 0, 1).Year() <= end000000.Year() &&
-					start000000.AddDate(0, 0, 1).YearDay() < end000000.YearDay()) /*超过一天*/ {
+			if canSnapshot() {
 				nonSnapshotTimeRange = append(nonSnapshotTimeRange, start, start235959)
 				snapshotTimeRange = append(snapshotTimeRange,
 					start000000.AddDate(0, 0, 1),
@@ -61,9 +62,7 @@ func Time2Range(start, end time.Time) (snapshotTimeRange /*快照区间*/, nonSn
 			}
 		} else if end.Before(end235959) {
 			// 结束日期未对齐
-			if start.Year()+1 < end.Year() /*跨年*/ ||
-				(start000000.AddDate(0, 0, 1).Year() <= end000000.Year() &&
-					start000000.AddDate(0, 0, 1).YearDay() < end000000.YearDay()) /*超过一天*/ {
+			if canSnapshot() {
 				snapshotTimeRange = append(snapshotTimeRange, start000000.AddDate(0, 0, 1),
 					end235959.AddDate(0, 0, -1))
 				nonSnapshotTimeRange = append(nonSnapshotTimeRange, start, start235959, end000000, end)
@@ -91,7 +90,7 @@ func main() {
 		},
 		{
 			time.Date(2019, 12, 31, 0, 0, 0, 0, time.Local),
-			time.Date(2020, 1, 2, 23, 59, 58, 0, time.Local),
+			time.Date(2030, 1, 2, 23, 59, 58, 0, time.Local),
 		},
 		{
 			time.Date(2019, 12, 31, 0, 0, 0, 0, time.Local),
