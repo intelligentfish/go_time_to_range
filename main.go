@@ -35,8 +35,9 @@ func Time2Range(start, end time.Time) (snapshotTimeRange /*快照区间*/, nonSn
 			snapshotTimeRange = append(snapshotTimeRange, start, end)
 		} else if end.Before(end235959) {
 			// 结束日期未对齐
-			if end000000.Year() > start.Year() /*跨年*/ ||
-				end000000.YearDay() > start000000.YearDay() /*超过一天*/ {
+			if start.Year()+1 < end.Year() /*跨年*/ ||
+				(start000000.AddDate(0, 0, 1).Year() <= end000000.Year() &&
+					start000000.AddDate(0, 0, 1).YearDay() < end000000.YearDay()) /*超过一天*/ {
 				// 有快照可用
 				snapshotTimeRange = append(snapshotTimeRange, start,
 					end235959.AddDate(0, 0, -1))
@@ -48,8 +49,9 @@ func Time2Range(start, end time.Time) (snapshotTimeRange /*快照区间*/, nonSn
 		// 开始日期未对齐
 		if end == end235959 {
 			// 结束日期对齐
-			if start.Year() < end.Year() /*跨年*/ ||
-				start000000.YearDay() < end000000.YearDay() {
+			if start.Year()+1 < end.Year() /*跨年*/ ||
+				(start000000.AddDate(0, 0, 1).Year() <= end000000.Year() &&
+					start000000.AddDate(0, 0, 1).YearDay() < end000000.YearDay()) /*超过一天*/ {
 				nonSnapshotTimeRange = append(nonSnapshotTimeRange, start, start235959)
 				snapshotTimeRange = append(snapshotTimeRange,
 					start000000.AddDate(0, 0, 1),
@@ -59,12 +61,15 @@ func Time2Range(start, end time.Time) (snapshotTimeRange /*快照区间*/, nonSn
 			}
 		} else if end.Before(end235959) {
 			// 结束日期未对齐
-			if start.Year() < end.Year() /*跨年*/ ||
-				start000000.AddDate(0, 0, 1).YearDay() < end000000.YearDay() /*超过一天*/ {
+			if start.Year()+1 < end.Year() /*跨年*/ ||
+				(start000000.AddDate(0, 0, 1).Year() <= end000000.Year() &&
+					start000000.AddDate(0, 0, 1).YearDay() < end000000.YearDay()) /*超过一天*/ {
 				snapshotTimeRange = append(snapshotTimeRange, start000000.AddDate(0, 0, 1),
 					end235959.AddDate(0, 0, -1))
+				nonSnapshotTimeRange = append(nonSnapshotTimeRange, start, start235959, end000000, end)
+			} else {
+				nonSnapshotTimeRange = append(nonSnapshotTimeRange, start, end)
 			}
-			nonSnapshotTimeRange = append(nonSnapshotTimeRange, start, start235959, end000000, end)
 		}
 	}
 	return
@@ -77,8 +82,32 @@ func main() {
 	}
 	timePairs := []TimePair{
 		{
-			time.Date(2020, 1, 1, 1, 0, 0, 0, time.Local),
-			time.Date(2020, 1, 1, 1, 59, 59, 0, time.Local),
+			time.Date(2019, 12, 31, 0, 0, 0, 0, time.Local),
+			time.Date(2019, 12, 31, 23, 59, 59, 0, time.Local),
+		},
+		{
+			time.Date(2019, 12, 31, 0, 0, 0, 0, time.Local),
+			time.Date(2020, 12, 31, 23, 59, 59, 0, time.Local),
+		},
+		{
+			time.Date(2019, 12, 31, 0, 0, 0, 0, time.Local),
+			time.Date(2020, 1, 2, 23, 59, 58, 0, time.Local),
+		},
+		{
+			time.Date(2019, 12, 31, 0, 0, 0, 0, time.Local),
+			time.Date(2019, 12, 31, 23, 59, 58, 0, time.Local),
+		},
+		{
+			time.Date(2019, 12, 31, 0, 0, 1, 0, time.Local),
+			time.Date(2019, 12, 31, 23, 59, 59, 0, time.Local),
+		},
+		{
+			time.Date(2019, 12, 31, 0, 0, 1, 0, time.Local),
+			time.Date(2019, 12, 31, 23, 59, 58, 0, time.Local),
+		},
+		{
+			time.Date(2019, 12, 31, 1, 0, 0, 0, time.Local),
+			time.Date(2020, 1, 1, 1, 59, 58, 0, time.Local),
 		},
 	}
 	for i := 0; i < len(timePairs); i++ {
