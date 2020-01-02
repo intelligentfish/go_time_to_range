@@ -28,6 +28,7 @@ func Time2Range(start, end time.Time) (snapshotTimeRange /*快照区间*/, nonSn
 	// 结束日期所在的终点
 	end235959 := time.Date(end.Year(), end.Month(), end.Day(),
 		23, 59, 59, 0, time.Local)
+	// 是否可使用快照
 	canSnapshot := func() bool {
 		return start.Year()+1 < end.Year() /*跨年*/ ||
 			(start000000.AddDate(0, 0, 1).Year() <= end000000.Year() &&
