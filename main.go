@@ -40,9 +40,9 @@ func Time2Range(start, end time.Time) (snapshotTimeRange /*快照区间*/, nonSn
 				// 有快照可用
 				snapshotTimeRange = append(snapshotTimeRange, start,
 					end235959.AddDate(0, 0, -1))
-				// 末尾区间查询原始数据
-				nonSnapshotTimeRange = append(nonSnapshotTimeRange, end000000, end)
 			}
+			// 末尾区间查询原始数据
+			nonSnapshotTimeRange = append(nonSnapshotTimeRange, end000000, end)
 		}
 	} else if start.After(start000000) {
 		// 开始日期未对齐
@@ -63,8 +63,8 @@ func Time2Range(start, end time.Time) (snapshotTimeRange /*快照区间*/, nonSn
 				start000000.AddDate(0, 0, 1).YearDay() < end000000.YearDay() /*超过一天*/ {
 				snapshotTimeRange = append(snapshotTimeRange, start000000.AddDate(0, 0, 1),
 					end235959.AddDate(0, 0, -1))
-				nonSnapshotTimeRange = append(nonSnapshotTimeRange, start, start235959, end000000, end)
 			}
+			nonSnapshotTimeRange = append(nonSnapshotTimeRange, start, start235959, end000000, end)
 		}
 	}
 	return
@@ -77,28 +77,8 @@ func main() {
 	}
 	timePairs := []TimePair{
 		{
-			time.Date(2019, 10, 31, 0, 0, 0, 0, time.Local),
-			time.Date(2019, 12, 31, 23, 59, 59, 0, time.Local),
-		},
-		{
-			time.Date(2019, 10, 31, 10, 0, 0, 0, time.Local),
-			time.Date(2019, 12, 31, 23, 59, 59, 0, time.Local),
-		},
-		{
-			time.Date(2019, 12, 31, 10, 0, 0, 0, time.Local),
-			time.Date(2019, 12, 31, 23, 59, 59, 0, time.Local),
-		},
-		{
-			time.Date(2019, 12, 31, 0, 0, 0, 0, time.Local),
-			time.Date(2020, 1, 1, 16, 59, 59, 0, time.Local),
-		},
-		{
-			time.Date(2019, 12, 31, 0, 0, 0, 0, time.Local),
-			time.Date(2020, 1, 20, 16, 59, 59, 0, time.Local),
-		},
-		{
-			time.Date(2019, 10, 31, 1, 0, 0, 0, time.Local),
-			time.Date(2020, 1, 20, 16, 59, 59, 0, time.Local),
+			time.Date(2020, 1, 1, 1, 0, 0, 0, time.Local),
+			time.Date(2020, 1, 1, 1, 59, 59, 0, time.Local),
 		},
 	}
 	for i := 0; i < len(timePairs); i++ {
